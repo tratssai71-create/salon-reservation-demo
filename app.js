@@ -29,12 +29,28 @@
   const $salonMeta = document.getElementById("salonMeta");
   const $salonFooterMeta = document.getElementById("salonFooterMeta");
 
-  document.title = `ご予約 | ${CFG.salonName}`;
-  $salonName.textContent = CFG.salonName;
-  if (CFG.tagline) $salonTagline.textContent = CFG.tagline;
-  $salonMeta.textContent = `${CFG.address}　TEL ${CFG.tel}`;
-  $salonFooterMeta.textContent = `${CFG.salonName}　${CFG.address}　TEL ${CFG.tel}`;
-  if (isDemo) $demoBanner.style.display = "block";
+  // 本番モード（API_URL設定済み）では、店名・メニュー・スタッフ・営業時間などの
+  // 「内容」はGAS側（管理画面で編集可能）から毎回取得し、config.js の値は上書きされる。
+  async function loadRuntimeConfig() {
+    if (isDemo) return;
+    try {
+      const res = await fetch(`${CFG.API_URL}?action=getConfig`);
+      const json = await res.json();
+      if (json.success) Object.assign(CFG, json.config);
+    } catch (e) {
+      console.error("設定の取得に失敗しました", e);
+    }
+  }
+
+  function renderHeader() {
+    document.title = `ご予約 | ${CFG.salonName}`;
+    $salonName.textContent = CFG.salonName;
+    if (CFG.tagline) $salonTagline.textContent = CFG.tagline;
+    $salonMeta.textContent = `${CFG.address}　TEL ${CFG.tel}`;
+    $salonFooterMeta.textContent = `${CFG.salonName}　${CFG.address}　TEL ${CFG.tel}`;
+    if (isDemo) $demoBanner.style.display = "block";
+  }
+  renderHeader();
 
   function pad2(n) { return String(n).padStart(2, "0"); }
   function dateKey(y, m, d) { return `${y}-${pad2(m + 1)}-${pad2(d)}`; }
@@ -408,6 +424,7 @@
       e.target.disabled = true;
       e.target.textContent = "送信中…";
       const payload = {
+        action: "createReservation",
         menuId: state.menu.id,
         menuName: state.menu.name,
         durationMin: state.menu.durationMin,
@@ -469,5 +486,9 @@
     });
   }
 
-  render();
+  (async () => {
+    await loadRuntimeConfig();
+    renderHeader();
+    render();
+  })();
 })();
