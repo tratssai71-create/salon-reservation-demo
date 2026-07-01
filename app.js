@@ -5,8 +5,9 @@
 
 (() => {
   const CFG = SALON_CONFIG;
-  const STEP_LABELS = ["メニュー", "日付", "時間", "スタッフ", "情報", "確認"];
+  const STEP_LABELS = ["メニュー", "日時", "スタッフ", "情報", "確認"];
   const DOW_JA = ["日", "月", "火", "水", "木", "金", "土"];
+  const DAYS_PER_PAGE = 7;
   const isDemo = !CFG.API_URL;
 
   const state = {
@@ -16,8 +17,7 @@
     time: null, // "HH:MM"
     staff: null, // {id,name} or {id:'', name:'指名なし'}
     customer: { name: "", tel: "", email: "", note: "" },
-    calViewYear: null,
-    calViewMonth: null, // 0-11
+    gridStartOffset: 0, // 表示中の週の開始日（今日からの日数）
     slotsCache: {},
   };
 
@@ -91,6 +91,26 @@
     return `${pad2(Math.floor(mins / 60))}:${pad2(mins % 60)}`;
   }
 
+  // 営業時間内の全タイムラベル（○×表の行）。休業日や個々の予約可否には関知しない。
+  function allTimeLabels() {
+    const hours = CFG.businessHours.default;
+    const openMin = toMinutes(hours.open);
+    const closeMin = toMinutes(hours.close);
+    const labels = [];
+    for (let t = openMin; t < closeMin; t += CFG.slotIntervalMin) labels.push(toHHMM(t));
+    return labels;
+  }
+
+  function addDays(dateStr, days) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    const dt = new Date(y, m - 1, d + days);
+    return dateKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  }
+  function dowOfDateStr(dateStr) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return new Date(y, m - 1, d).getDay();
+  }
+
   async function fetchSlots(dateStr, durationMin) {
     const cacheKey = `${dateStr}_${durationMin}`;
     if (state.slotsCache[cacheKey]) return state.slotsCache[cacheKey];
@@ -155,12 +175,11 @@
   function render() {
     renderSteps();
     if (state.step === 1) renderMenuStep();
-    else if (state.step === 2) renderDateStep();
-    else if (state.step === 3) renderTimeStep();
-    else if (state.step === 4) renderStaffStep();
-    else if (state.step === 5) renderInfoStep();
-    else if (state.step === 6) renderConfirmStep();
-    else if (state.step === 7) renderDoneStep();
+    else if (state.step === 2) renderDateTimeStep();
+    else if (state.step === 3) renderStaffStep();
+    else if (state.step === 4) renderInfoStep();
+    else if (state.step === 5) renderConfirmStep();
+    else if (state.step === 6) renderDoneStep();
   }
 
   function renderMenuStep() {
@@ -192,7 +211,9 @@
     $container.querySelectorAll(".option-item").forEach((el) => {
       el.addEventListener("click", () => {
         state.menu = findMenuItem(el.dataset.id);
+        state.date = null;
         state.time = null;
+        state.gridStartOffset = 0;
         render();
       });
     });
@@ -203,117 +224,80 @@
     });
   }
 
-  function renderDateStep() {
-    const now = new Date();
-    if (state.calViewYear === null) {
-      state.calViewYear = now.getFullYear();
-      state.calViewMonth = now.getMonth();
-    }
-    const y = state.calViewYear, m = state.calViewMonth;
-    const firstDow = new Date(y, m, 1).getDay();
-    const daysInMonth = new Date(y, m + 1, 0).getDate();
+  async function renderDateTimeStep() {
     const todK = todayKey();
-    const isCurrentMonth = y === now.getFullYear() && m === now.getMonth();
-
-    let cells = "";
-    for (let i = 0; i < firstDow; i++) cells += `<div class="cal-day empty"></div>`;
-    for (let d = 1; d <= daysInMonth; d++) {
-      const key = dateKey(y, m, d);
-      const dow = new Date(y, m, d).getDay();
-      const isPast = key < todK;
-      const isClosed = CFG.closedWeekdays.includes(dow);
-      const disabled = isPast || isClosed;
-      const selected = state.date === key;
-      cells += `<div class="cal-day ${disabled ? "disabled" : ""} ${selected ? "selected" : ""}" data-key="${key}" data-disabled="${disabled}">${d}</div>`;
-    }
+    const pageDates = Array.from({ length: DAYS_PER_PAGE }, (_, i) => addDays(todK, state.gridStartOffset + i));
+    const timeLabels = allTimeLabels();
 
     $container.innerHTML = `
-      <h2>日付を選択してください</h2>
-      <div class="cal-nav">
-        <button id="prevMonth" ${isCurrentMonth ? "disabled" : ""}>‹</button>
-        <span class="cal-nav__label">${y}年${m + 1}月</span>
-        <button id="nextMonth">›</button>
+      <h2>日時を選択してください</h2>
+      <p class="option-item__meta" style="margin:-10px 0 16px;">${state.menu.categoryLabel} - ${state.menu.name}（約${state.menu.durationMin}分）</p>
+      <div class="loading">空き状況を確認しています…</div>
+    `;
+
+    const slotsByDate = {};
+    await Promise.all(
+      pageDates.map(async (d) => {
+        slotsByDate[d] = CFG.closedWeekdays.includes(dowOfDateStr(d)) ? [] : await fetchSlots(d, state.menu.durationMin);
+      })
+    );
+
+    const headerCells = pageDates.map((d) => {
+      const day = Number(d.split("-")[2]);
+      const dow = dowOfDateStr(d);
+      const closed = CFG.closedWeekdays.includes(dow);
+      const dowCls = dow === 0 ? "sun" : dow === 6 ? "sat" : "";
+      return `<th class="avail-th ${dowCls}"><span class="avail-th__d">${day}</span><span class="avail-th__w">${DOW_JA[dow]}</span>${closed ? '<span class="avail-th__closed">休</span>' : ""}</th>`;
+    }).join("");
+
+    const bodyRows = timeLabels.map((label) => {
+      const cells = pageDates.map((d) => {
+        const available = slotsByDate[d].includes(label);
+        if (available) {
+          return `<td class="avail-td avail-td--open" data-date="${d}" data-time="${label}">○</td>`;
+        }
+        return `<td class="avail-td avail-td--closed">×</td>`;
+      }).join("");
+      return `<tr><th class="avail-th-time">${label}</th>${cells}</tr>`;
+    }).join("");
+
+    $container.innerHTML = `
+      <h2>日時を選択してください</h2>
+      <p class="option-item__meta" style="margin:-10px 0 16px;">${state.menu.categoryLabel} - ${state.menu.name}（約${state.menu.durationMin}分）</p>
+      <div class="avail-nav">
+        <button id="prevWeek" ${state.gridStartOffset <= 0 ? "disabled" : ""}>‹ 前の7日</button>
+        <span class="avail-nav__label">${fmtDateLabel(pageDates[0]).replace(/（.+）/, "")} 〜 ${fmtDateLabel(pageDates[pageDates.length - 1]).replace(/（.+）/, "")}</span>
+        <button id="nextWeek">次の7日 ›</button>
       </div>
-      <div class="cal-grid">
-        ${DOW_JA.map((d) => `<div class="cal-dow">${d}</div>`).join("")}
-        ${cells}
+      <div class="avail-scroll">
+        <table class="avail-table">
+          <thead><tr><th class="avail-th-time"></th>${headerCells}</tr></thead>
+          <tbody>${bodyRows}</tbody>
+        </table>
       </div>
+      <p class="avail-legend">○ … ご予約可能　× … 予約不可・受付終了</p>
       <div class="btn-row">
         <button class="btn btn-ghost" id="back">戻る</button>
-        <button class="btn btn-primary" id="next" ${state.date ? "" : "disabled"}>次へ</button>
       </div>
     `;
 
-    document.getElementById("prevMonth").addEventListener("click", () => {
-      state.calViewMonth -= 1;
-      if (state.calViewMonth < 0) { state.calViewMonth = 11; state.calViewYear -= 1; }
+    document.getElementById("prevWeek").addEventListener("click", () => {
+      state.gridStartOffset = Math.max(0, state.gridStartOffset - DAYS_PER_PAGE);
       render();
     });
-    document.getElementById("nextMonth").addEventListener("click", () => {
-      state.calViewMonth += 1;
-      if (state.calViewMonth > 11) { state.calViewMonth = 0; state.calViewYear += 1; }
+    document.getElementById("nextWeek").addEventListener("click", () => {
+      state.gridStartOffset += DAYS_PER_PAGE;
       render();
     });
-    $container.querySelectorAll(".cal-day[data-key]").forEach((el) => {
-      if (el.dataset.disabled === "true") return;
+    $container.querySelectorAll(".avail-td--open").forEach((el) => {
       el.addEventListener("click", () => {
-        state.date = el.dataset.key;
-        state.time = null;
+        state.date = el.dataset.date;
+        state.time = el.dataset.time;
+        state.step = 3;
         render();
       });
     });
     document.getElementById("back").addEventListener("click", () => { state.step = 1; render(); });
-    document.getElementById("next").addEventListener("click", () => {
-      if (!state.date) return;
-      state.step = 3;
-      render();
-    });
-  }
-
-  async function renderTimeStep() {
-    $container.innerHTML = `
-      <h2>時間を選択してください</h2>
-      <p class="option-item__meta" style="margin:-10px 0 16px;">${fmtDateLabel(state.date)}・${state.menu.name}（約${state.menu.durationMin}分）</p>
-      <div class="loading">空き時間を確認しています…</div>
-    `;
-    const slots = await fetchSlots(state.date, state.menu.durationMin);
-
-    if (!slots.length) {
-      $container.innerHTML = `
-        <h2>時間を選択してください</h2>
-        <p class="option-item__meta" style="margin:-10px 0 16px;">${fmtDateLabel(state.date)}・${state.menu.name}</p>
-        <div class="empty-msg">この日は空き枠がありません。別の日付をお選びください。</div>
-        <div class="btn-row">
-          <button class="btn btn-ghost" id="back">戻る</button>
-        </div>
-      `;
-      document.getElementById("back").addEventListener("click", () => { state.step = 2; render(); });
-      return;
-    }
-
-    $container.innerHTML = `
-      <h2>時間を選択してください</h2>
-      <p class="option-item__meta" style="margin:-10px 0 16px;">${fmtDateLabel(state.date)}・${state.menu.name}（約${state.menu.durationMin}分）</p>
-      <div class="slot-grid">
-        ${slots.map((s) => `<div class="slot-btn ${state.time === s ? "selected" : ""}" data-time="${s}">${s}</div>`).join("")}
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" id="back">戻る</button>
-        <button class="btn btn-primary" id="next" ${state.time ? "" : "disabled"}>次へ</button>
-      </div>
-    `;
-    $container.querySelectorAll(".slot-btn").forEach((el) => {
-      el.addEventListener("click", () => {
-        state.time = el.dataset.time;
-        render();
-      });
-    });
-    document.getElementById("back").addEventListener("click", () => { state.step = 2; render(); });
-    document.getElementById("next").addEventListener("click", () => {
-      if (!state.time) return;
-      state.step = 4;
-      render();
-    });
   }
 
   function renderStaffStep() {
@@ -342,10 +326,10 @@
         render();
       });
     });
-    document.getElementById("back").addEventListener("click", () => { state.step = 3; render(); });
+    document.getElementById("back").addEventListener("click", () => { state.step = 2; render(); });
     document.getElementById("next").addEventListener("click", () => {
       if (!state.staff) return;
-      state.step = 5;
+      state.step = 4;
       render();
     });
   }
@@ -378,7 +362,7 @@
         <button class="btn btn-primary" id="next">確認画面へ</button>
       </div>
     `;
-    document.getElementById("back").addEventListener("click", () => { state.step = 4; render(); });
+    document.getElementById("back").addEventListener("click", () => { state.step = 3; render(); });
     document.getElementById("next").addEventListener("click", () => {
       const name = document.getElementById("name").value.trim();
       const tel = document.getElementById("tel").value.trim();
@@ -395,7 +379,7 @@
       if (!name || !telOk || !emailOk) return;
 
       state.customer = { name, tel, email, note };
-      state.step = 6;
+      state.step = 5;
       render();
     });
   }
@@ -419,7 +403,7 @@
         <button class="btn btn-primary" id="confirm">予約を確定する</button>
       </div>
     `;
-    document.getElementById("back").addEventListener("click", () => { state.step = 5; render(); });
+    document.getElementById("back").addEventListener("click", () => { state.step = 4; render(); });
     document.getElementById("confirm").addEventListener("click", async (e) => {
       e.target.disabled = true;
       e.target.textContent = "送信中…";
@@ -441,11 +425,11 @@
         const result = await submitReservation(payload);
         if (result.success) {
           state.reservationId = result.reservationId;
-          state.step = 7;
+          state.step = 6;
           render();
         } else {
           alert("予約に失敗しました。時間を変えて再度お試しください。");
-          state.step = 3;
+          state.step = 2;
           state.slotsCache = {};
           render();
         }
@@ -480,6 +464,7 @@
       state.staff = null;
       state.customer = { name: "", tel: "", email: "", note: "" };
       state.slotsCache = {};
+      state.gridStartOffset = 0;
       render();
     });
   }

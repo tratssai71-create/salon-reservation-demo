@@ -257,86 +257,110 @@ body {
   flex-shrink: 0;
 }
 
-/* カレンダー */
-.cal-nav {
+/* 日時選択（○×の空き状況表） */
+.avail-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 14px;
-}
-
-.cal-nav button {
-  background: none;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  font-size: 1rem;
-  color: var(--ink);
-}
-
-.cal-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
-
-.cal-nav__label {
-  font-family: "Shippori Mincho", serif;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-}
-
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-}
-
-.cal-dow {
-  text-align: center;
-  font-size: 0.7rem;
-  color: var(--ink3);
-  padding-bottom: 4px;
-  font-family: "Inter", sans-serif;
-}
-
-.cal-day {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  font-size: 0.86rem;
-  cursor: pointer;
-  border: 1px solid transparent;
-  font-family: "Inter", sans-serif;
-}
-
-.cal-day.disabled { color: var(--ink3); cursor: not-allowed; }
-.cal-day.empty { visibility: hidden; }
-
-.cal-day:not(.disabled):not(.empty):hover { border-color: var(--ac); }
-
-.cal-day.selected { background: var(--ac); color: #fff; }
-
-/* 時間スロット */
-.slot-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 
-.slot-btn {
-  padding: 10px 4px;
-  border-radius: 8px;
+.avail-nav button {
+  background: none;
   border: 1px solid var(--line);
-  background: #fff;
+  border-radius: 8px;
+  padding: 7px 12px;
   cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--ink);
   font-family: "Inter", sans-serif;
-  font-size: 0.85rem;
+  white-space: nowrap;
 }
 
-.slot-btn:hover { border-color: var(--ac); }
+.avail-nav button:hover:not(:disabled) { border-color: var(--ac); color: var(--ac-d); }
+.avail-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
 
-.slot-btn.selected { background: var(--ac); border-color: var(--ac); color: #fff; }
+.avail-nav__label {
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  color: var(--ink2);
+  text-align: center;
+}
+
+.avail-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.avail-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 620px;
+  font-family: "Inter", sans-serif;
+}
+
+.avail-table th,
+.avail-table td {
+  border: 1px solid var(--line);
+  text-align: center;
+  padding: 0;
+}
+
+.avail-th-time {
+  position: sticky;
+  left: 0;
+  background: var(--card);
+  font-size: 0.72rem;
+  color: var(--ink2);
+  padding: 8px 10px !important;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.avail-th {
+  background: #faf6f0;
+  padding: 8px 4px !important;
+  min-width: 68px;
+}
+
+.avail-th__d { display: block; font-size: 1rem; font-weight: 600; line-height: 1.2; }
+.avail-th__w { display: block; font-size: 0.66rem; color: var(--ink2); }
+.avail-th__closed {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--danger);
+  margin-top: 2px;
+}
+
+.avail-th.sun .avail-th__d,
+.avail-th.sun .avail-th__w { color: var(--danger); }
+.avail-th.sat .avail-th__d,
+.avail-th.sat .avail-th__w { color: #3d6fa8; }
+
+.avail-td {
+  height: 38px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.avail-td--open {
+  color: var(--ac-d);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.avail-td--open:hover { background: var(--ac-soft); }
+
+.avail-td--closed { color: var(--ink3); font-weight: 400; }
+
+.avail-legend {
+  font-size: 0.72rem;
+  color: var(--ink2);
+  margin: 12px 2px 0;
+}
 
 .empty-msg { color: var(--ink2); font-size: 0.85rem; text-align: center; padding: 24px 0; }
 
