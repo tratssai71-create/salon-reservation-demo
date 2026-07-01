@@ -26,12 +26,21 @@ const CONFIG = {
 
   slotIntervalMin: 30,
 
+  // フロント側 config.js の menuCategories と同じ内容にする（すべて仮の架空プラン）
   menus: {
-    cut: { name: "カット", durationMin: 60, price: 4400 },
-    color: { name: "カラー", durationMin: 90, price: 7700 },
-    perm: { name: "パーマ", durationMin: 120, price: 9900 },
-    cut_color: { name: "カット＋カラー", durationMin: 150, price: 11000 },
-    treatment: { name: "トリートメント", durationMin: 40, price: 3300 },
+    cut_free: { name: "カット（フリー指名）", durationMin: 60, price: 4400 },
+    cut_designate: { name: "カット（指名）", durationMin: 60, price: 5500 },
+    cut_kids: { name: "キッズカット（〜12歳）", durationMin: 40, price: 3300 },
+    color_full: { name: "フルカラー", durationMin: 90, price: 8800 },
+    color_retouch: { name: "リタッチカラー", durationMin: 60, price: 6600 },
+    color_highlight: { name: "ハイライト／グラデーション", durationMin: 120, price: 13200 },
+    perm_digital: { name: "デジタルパーマ", durationMin: 150, price: 14300 },
+    perm_soft: { name: "ゆるふわパーマ", durationMin: 120, price: 11000 },
+    treat_intensive: { name: "集中トリートメント", durationMin: 40, price: 4400 },
+    treat_repair: { name: "髪質改善トリートメント", durationMin: 90, price: 9900 },
+    spa_relax: { name: "リラックスヘッドスパ", durationMin: 30, price: 3300 },
+    spa_carbonic: { name: "炭酸ヘッドスパ", durationMin: 45, price: 5500 },
+    set_kimono: { name: "着付け＋セット", durationMin: 60, price: 8800 },
   },
 };
 

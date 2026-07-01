@@ -1,16 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
-  --bg: #faf8f5;
-  --card: #ffffff;
-  --ink: #262220;
-  --ink2: rgba(38, 34, 32, 0.6);
-  --ink3: rgba(38, 34, 32, 0.32);
-  --ac: #b8895f;
-  --ac-d: #8f6540;
-  --line: rgba(38, 34, 32, 0.1);
-  --danger: #c9483c;
-  --radius: 14px;
+  --bg: #f6f2ec;
+  --card: #fffdfa;
+  --ink: #2a231d;
+  --ink2: rgba(42, 35, 29, 0.6);
+  --ink3: rgba(42, 35, 29, 0.32);
+  --ac: #a97c4f;
+  --ac-d: #7c5934;
+  --ac-soft: rgba(169, 124, 79, 0.1);
+  --line: rgba(42, 35, 29, 0.12);
+  --danger: #a8443b;
+  --radius: 16px;
 }
 
 * { box-sizing: border-box; }
@@ -23,47 +24,126 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ---------- ヒーロー ---------- */
+.hero {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(169, 124, 79, 0.35), transparent 60%),
+    linear-gradient(160deg, #2a231d 0%, #1c1712 65%, #100d0a 100%);
+  color: #f3ece1;
+  padding: 64px 20px 56px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+
+.hero__inner { position: relative; max-width: 560px; margin: 0 auto; }
+
+.hero__eyebrow {
+  font-family: "Inter", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.42em;
+  color: rgba(243, 236, 225, 0.55);
+  margin: 0 0 18px;
+  text-transform: uppercase;
+}
+
+.hero__name {
+  font-family: "Cormorant Garamond", "Shippori Mincho", serif;
+  font-weight: 500;
+  font-size: clamp(2.2rem, 7vw, 3.1rem);
+  letter-spacing: 0.06em;
+  margin: 0 0 10px;
+}
+
+.hero__tagline {
+  font-family: "Shippori Mincho", serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  color: rgba(243, 236, 225, 0.78);
+  margin: 0;
+}
+
+.hero__divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 26px 0 18px;
+}
+
+.hero__divider span {
+  width: 5px;
+  height: 5px;
+  background: var(--ac);
+  transform: rotate(45deg);
+}
+
+.hero__divider::before,
+.hero__divider::after {
+  content: "";
+  height: 1px;
+  width: 64px;
+  background: rgba(243, 236, 225, 0.25);
+  margin: 0 14px;
+}
+
+.hero__meta {
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: rgba(243, 236, 225, 0.5);
+  margin: 0;
+}
+
+/* ---------- 本体 ---------- */
 .app {
   max-width: 640px;
-  margin: 0 auto;
-  padding: 32px 20px 80px;
+  margin: -30px auto 0;
+  padding: 0 20px 64px;
+  position: relative;
 }
 
-.salon-header {
+.demo-banner {
+  background: #fdf3e2;
+  border: 1px solid #e6c288;
+  color: #7a5a10;
+  font-size: 0.76rem;
+  padding: 10px 16px;
+  border-radius: 10px;
   text-align: center;
-  margin-bottom: 28px;
-}
-
-.salon-header__name {
-  font-family: "Inter", sans-serif;
-  font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: 0.02em;
-  margin: 0 0 4px;
-}
-
-.salon-header__sub {
-  margin: 0;
-  font-size: 0.82rem;
-  color: var(--ink2);
-  letter-spacing: 0.04em;
+  margin-bottom: 18px;
 }
 
 /* ステップインジケーター */
 .steps {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 18px;
   gap: 4px;
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  padding: 16px 10px 12px;
+  box-shadow: 0 10px 32px rgba(42, 35, 29, 0.06);
 }
 
 .step-dot {
   flex: 1;
   text-align: center;
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   color: var(--ink3);
   position: relative;
   padding-top: 18px;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.02em;
 }
 
 .step-dot::before {
@@ -72,39 +152,63 @@ body {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--line);
   transition: background 0.25s;
 }
 
 .step-dot.done::before,
-.step-dot.active::before {
-  background: var(--ac);
-}
+.step-dot.active::before { background: var(--ac); }
 
-.step-dot.active {
-  color: var(--ink);
-  font-weight: 700;
-}
+.step-dot.active { color: var(--ink); font-weight: 700; }
 
 /* カード */
 .card {
   background: var(--card);
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  padding: 24px 20px;
-  box-shadow: 0 8px 28px rgba(38, 34, 32, 0.05);
+  padding: 28px 22px;
+  box-shadow: 0 12px 36px rgba(42, 35, 29, 0.07);
 }
 
 .card h2 {
-  font-size: 1.08rem;
-  margin: 0 0 18px;
-  letter-spacing: 0.02em;
+  font-family: "Shippori Mincho", serif;
+  font-weight: 600;
+  font-size: 1.2rem;
+  letter-spacing: 0.03em;
+  margin: 0 0 20px;
 }
 
-/* メニュー選択 */
+/* メニューカテゴリ */
+.menu-category { margin-bottom: 26px; }
+.menu-category:last-of-type { margin-bottom: 0; }
+
+.menu-category__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.menu-category__en {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ac-d);
+  letter-spacing: 0.03em;
+}
+
+.menu-category__ja {
+  font-size: 0.74rem;
+  color: var(--ink2);
+  letter-spacing: 0.08em;
+}
+
+/* 選択リスト（メニュー・スタッフ） */
 .option-list { display: flex; flex-direction: column; gap: 10px; }
 
 .option-item {
@@ -114,9 +218,9 @@ body {
   gap: 12px;
   padding: 14px 16px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
   background: #fff;
 }
 
@@ -124,13 +228,34 @@ body {
 
 .option-item.selected {
   border-color: var(--ac);
-  background: rgba(184, 137, 95, 0.07);
+  background: var(--ac-soft);
+  box-shadow: 0 2px 14px rgba(169, 124, 79, 0.18);
 }
 
-.option-item__main { display: flex; flex-direction: column; gap: 3px; }
+.option-item__main { display: flex; flex-direction: column; gap: 3px; flex: 1; }
 .option-item__name { font-weight: 500; }
-.option-item__meta { font-size: 0.78rem; color: var(--ink2); }
-.option-item__price { font-family: "Inter", sans-serif; font-weight: 600; white-space: nowrap; }
+.option-item__meta { font-size: 0.76rem; color: var(--ink2); }
+.option-item__price {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--ac-d);
+  white-space: nowrap;
+}
+
+.staff-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--ac), var(--ac-d));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Shippori Mincho", serif;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
 
 /* カレンダー */
 .cal-nav {
@@ -153,7 +278,11 @@ body {
 
 .cal-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
 
-.cal-nav__label { font-family: "Inter", sans-serif; font-weight: 600; }
+.cal-nav__label {
+  font-family: "Shippori Mincho", serif;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
 
 .cal-grid {
   display: grid;
@@ -166,6 +295,7 @@ body {
   font-size: 0.7rem;
   color: var(--ink3);
   padding-bottom: 4px;
+  font-family: "Inter", sans-serif;
 }
 
 .cal-day {
@@ -185,10 +315,7 @@ body {
 
 .cal-day:not(.disabled):not(.empty):hover { border-color: var(--ac); }
 
-.cal-day.selected {
-  background: var(--ac);
-  color: #fff;
-}
+.cal-day.selected { background: var(--ac); color: #fff; }
 
 /* 時間スロット */
 .slot-grid {
@@ -209,28 +336,14 @@ body {
 
 .slot-btn:hover { border-color: var(--ac); }
 
-.slot-btn.selected {
-  background: var(--ac);
-  border-color: var(--ac);
-  color: #fff;
-}
+.slot-btn.selected { background: var(--ac); border-color: var(--ac); color: #fff; }
 
-.empty-msg {
-  color: var(--ink2);
-  font-size: 0.85rem;
-  text-align: center;
-  padding: 24px 0;
-}
+.empty-msg { color: var(--ink2); font-size: 0.85rem; text-align: center; padding: 24px 0; }
 
 /* フォーム */
 .field { margin-bottom: 16px; }
 
-.field label {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--ink2);
-  margin-bottom: 6px;
-}
+.field label { display: block; font-size: 0.8rem; color: var(--ink2); margin-bottom: 6px; }
 
 .field input,
 .field textarea {
@@ -245,19 +358,11 @@ body {
 }
 
 .field input:focus,
-.field textarea:focus {
-  outline: none;
-  border-color: var(--ac);
-}
+.field textarea:focus { outline: none; border-color: var(--ac); }
 
 .field textarea { resize: vertical; min-height: 70px; }
 
-.field-error {
-  color: var(--danger);
-  font-size: 0.76rem;
-  margin-top: 4px;
-  display: none;
-}
+.field-error { color: var(--danger); font-size: 0.76rem; margin-top: 4px; display: none; }
 
 .field.invalid input,
 .field.invalid textarea { border-color: var(--danger); }
@@ -282,56 +387,49 @@ body {
 .notice {
   font-size: 0.76rem;
   color: var(--ink2);
-  background: rgba(184, 137, 95, 0.08);
-  border-radius: 8px;
-  padding: 10px 12px;
+  background: var(--ac-soft);
+  border-radius: 10px;
+  padding: 12px 14px;
   margin-bottom: 18px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* 完了画面 */
 .done-icon {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: var(--ac);
+  background: linear-gradient(150deg, var(--ac), var(--ac-d));
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
-  margin: 0 auto 18px;
+  font-size: 1.7rem;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 22px rgba(169, 124, 79, 0.35);
 }
 
 .done-title {
   text-align: center;
-  font-size: 1.15rem;
+  font-family: "Shippori Mincho", serif;
+  font-size: 1.25rem;
   margin: 0 0 6px;
 }
 
-.done-sub {
-  text-align: center;
-  color: var(--ink2);
-  font-size: 0.85rem;
-  margin: 0 0 24px;
-}
+.done-sub { text-align: center; color: var(--ink2); font-size: 0.85rem; margin: 0 0 24px; }
 
 .reservation-id {
   text-align: center;
-  font-family: "Inter", sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  font-size: 1rem;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  font-size: 1.3rem;
   color: var(--ac-d);
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 /* ボタン */
-.btn-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 24px;
-}
+.btn-row { display: flex; gap: 10px; margin-top: 26px; }
 
 .btn {
   flex: 1;
@@ -344,35 +442,30 @@ body {
   font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, background 0.15s;
 }
 
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-primary {
-  background: var(--ac);
-  border-color: var(--ac);
+  background: linear-gradient(140deg, var(--ac), var(--ac-d));
+  border-color: var(--ac-d);
   color: #fff;
+  letter-spacing: 0.04em;
 }
 
-.btn-primary:hover:not(:disabled) { background: var(--ac-d); }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.06); }
 
 .btn-ghost { flex: 0 0 auto; padding-left: 20px; padding-right: 20px; }
 
-.demo-banner {
-  background: #fff4e0;
-  border: 1px solid #e8c98a;
-  color: #7a5a10;
-  font-size: 0.76rem;
-  padding: 8px 14px;
-  border-radius: 8px;
-  text-align: center;
-  margin-bottom: 18px;
-}
+.loading { text-align: center; padding: 24px 0; color: var(--ink2); font-size: 0.85rem; }
 
-.loading {
+/* フッター */
+.app-footer {
   text-align: center;
-  padding: 24px 0;
-  color: var(--ink2);
-  font-size: 0.85rem;
+  margin-top: 28px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--ink3);
 }

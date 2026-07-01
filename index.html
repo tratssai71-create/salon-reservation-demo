@@ -7,12 +7,17 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="app">
-  <header class="salon-header">
-    <p class="salon-header__name" id="salonName">SALON NAME</p>
-    <p class="salon-header__sub">WEB予約</p>
-  </header>
+<header class="hero">
+  <div class="hero__inner">
+    <p class="hero__eyebrow">ONLINE RESERVATION</p>
+    <h1 class="hero__name" id="salonName">SALON NAME</h1>
+    <p class="hero__tagline" id="salonTagline"></p>
+    <div class="hero__divider"><span></span></div>
+    <p class="hero__meta" id="salonMeta"></p>
+  </div>
+</header>
 
+<div class="app">
   <div id="demoBanner" class="demo-banner" style="display:none;">
     デモモードで動作中です（実際のカレンダーには反映されません）。README.mdの手順でGASを接続すると本番連携します。
   </div>
@@ -20,6 +25,10 @@
   <nav class="steps" id="steps"></nav>
 
   <main class="card" id="stepContainer"></main>
+
+  <footer class="app-footer">
+    <p id="salonFooterMeta"></p>
+  </footer>
 </div>
 
 <script src="config.js"></script>

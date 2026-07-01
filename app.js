@@ -25,8 +25,15 @@
   const $container = document.getElementById("stepContainer");
   const $demoBanner = document.getElementById("demoBanner");
   const $salonName = document.getElementById("salonName");
+  const $salonTagline = document.getElementById("salonTagline");
+  const $salonMeta = document.getElementById("salonMeta");
+  const $salonFooterMeta = document.getElementById("salonFooterMeta");
 
+  document.title = `ご予約 | ${CFG.salonName}`;
   $salonName.textContent = CFG.salonName;
+  if (CFG.tagline) $salonTagline.textContent = CFG.tagline;
+  $salonMeta.textContent = `${CFG.address}　TEL ${CFG.tel}`;
+  $salonFooterMeta.textContent = `${CFG.salonName}　${CFG.address}　TEL ${CFG.tel}`;
   if (isDemo) $demoBanner.style.display = "block";
 
   function pad2(n) { return String(n).padStart(2, "0"); }
@@ -40,6 +47,13 @@
     const [y, m, d] = key.split("-").map(Number);
     const dow = DOW_JA[new Date(y, m - 1, d).getDay()];
     return `${y}年${m}月${d}日（${dow}）`;
+  }
+
+  function allMenuItems() {
+    return CFG.menuCategories.flatMap((cat) => cat.items.map((item) => ({ ...item, categoryLabel: cat.label })));
+  }
+  function findMenuItem(id) {
+    return allMenuItems().find((m) => m.id === id) || null;
   }
 
   // ---------- ステップインジケーター ----------
@@ -100,7 +114,7 @@
     const closeMin = toMinutes(hours.close);
     const booked = loadDemoReservations().filter((r) => r.date === dateStr);
     const bookedRanges = booked.map((r) => {
-      const menu = CFG.menus.find((m) => m.id === r.menuId);
+      const menu = findMenuItem(r.menuId);
       const start = toMinutes(r.time);
       return [start, start + (menu ? menu.durationMin : 60)];
     });
@@ -152,24 +166,32 @@
   function renderMenuStep() {
     $container.innerHTML = `
       <h2>メニューを選択してください</h2>
-      <div class="option-list">
-        ${CFG.menus.map((m) => `
-          <div class="option-item ${state.menu?.id === m.id ? "selected" : ""}" data-id="${m.id}">
-            <div class="option-item__main">
-              <span class="option-item__name">${m.name}</span>
-              <span class="option-item__meta">所要時間 約${m.durationMin}分</span>
-            </div>
-            <span class="option-item__price">${fmtPrice(m.price)}</span>
+      ${CFG.menuCategories.map((cat) => `
+        <div class="menu-category">
+          <div class="menu-category__head">
+            <span class="menu-category__en">${cat.name}</span>
+            <span class="menu-category__ja">${cat.label}</span>
           </div>
-        `).join("")}
-      </div>
+          <div class="option-list">
+            ${cat.items.map((m) => `
+              <div class="option-item ${state.menu?.id === m.id ? "selected" : ""}" data-id="${m.id}">
+                <div class="option-item__main">
+                  <span class="option-item__name">${m.name}</span>
+                  <span class="option-item__meta">所要時間 約${m.durationMin}分${m.desc ? " ・ " + m.desc : ""}</span>
+                </div>
+                <span class="option-item__price">${fmtPrice(m.price)}</span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `).join("")}
       <div class="btn-row">
         <button class="btn btn-primary" id="next" ${state.menu ? "" : "disabled"}>次へ</button>
       </div>
     `;
     $container.querySelectorAll(".option-item").forEach((el) => {
       el.addEventListener("click", () => {
-        state.menu = CFG.menus.find((m) => m.id === el.dataset.id);
+        state.menu = findMenuItem(el.dataset.id);
         state.time = null;
         render();
       });
@@ -295,14 +317,16 @@
   }
 
   function renderStaffStep() {
-    const options = [{ id: "", name: "指名なし" }, ...CFG.staff];
+    const options = [{ id: "", name: "指名なし", role: "" }, ...CFG.staff];
     $container.innerHTML = `
       <h2>スタッフを選択してください</h2>
       <div class="option-list">
         ${options.map((s) => `
           <div class="option-item ${state.staff?.id === s.id ? "selected" : ""}" data-id="${s.id}">
+            <div class="staff-avatar">${s.name.charAt(0)}</div>
             <div class="option-item__main">
               <span class="option-item__name">${s.name}</span>
+              ${s.role ? `<span class="option-item__meta">${s.role}</span>` : ""}
             </div>
           </div>
         `).join("")}
@@ -381,7 +405,7 @@
     $container.innerHTML = `
       <h2>ご予約内容の確認</h2>
       <ul class="confirm-list">
-        <li><span>メニュー</span><span>${state.menu.name}（${fmtPrice(state.menu.price)}）</span></li>
+        <li><span>メニュー</span><span>${state.menu.categoryLabel} - ${state.menu.name}（${fmtPrice(state.menu.price)}）</span></li>
         <li><span>日時</span><span>${fmtDateLabel(state.date)} ${state.time}〜</span></li>
         <li><span>担当</span><span>${state.staff.name}</span></li>
         <li><span>お名前</span><span>${c.name}</span></li>
