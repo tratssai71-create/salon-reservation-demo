@@ -14,7 +14,7 @@ const SALON_CONFIG = {
   // GAS Web AppのデプロイURL。
   // 空文字のままだとフロント単体の「デモモード」で動作します（localStorageに予約を保存、実際のカレンダーには入りません）。
   // README.md の手順でGASをデプロイしたら、取得したURLをここに設定してください。
-  API_URL: "https://script.google.com/macros/s/AKfycbzWbNcDDGpVRQwDt_-mLDK03dLrEN05GDtf1ZJcBSlZr9rc9ndP8AL67v0LOwgFwBKC/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbx-EvknENCNiIZHOE5uL-Tr69upmSxkgVZZUFQHGIstlrQ-uuHRMFNUaWIfqHLEoyyntQ/exec",
 
   // 定休日（0=日曜〜6=土曜）。例: 月曜定休なら [1]
   closedWeekdays: [1],
