@@ -493,3 +493,15 @@ body {
   letter-spacing: 0.05em;
   color: var(--ink3);
 }
+
+/* ---------- レスポンシブ（スマホ） ---------- */
+@media (max-width: 480px) {
+  .hero { padding: 48px 16px 44px; }
+  .app { padding: 0 12px 48px; }
+  .card { padding: 20px 16px; }
+  .steps { padding: 12px 4px 10px; }
+  .step-dot { font-size: 0.56rem; padding-top: 16px; }
+  .option-item { padding: 12px; }
+  .btn { padding: 12px 14px; font-size: 0.88rem; }
+  .avail-th { min-width: 56px; }
+}

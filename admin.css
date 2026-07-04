@@ -164,4 +164,11 @@
 @media (max-width: 560px) {
   .admin-item-row { grid-template-columns: 1fr 1fr; }
   .admin-row-2, .admin-row-3 { grid-template-columns: 1fr; }
+  .admin-staff-row { grid-template-columns: 1fr 1fr; }
+  .admin-tab { padding: 8px 11px; font-size: 0.76rem; }
+  .admin-section-head { flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+  .hero--admin { padding: 32px 14px 28px; }
 }
