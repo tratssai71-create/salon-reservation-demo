@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>管理画面</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <header class="hero hero--admin">
+    <div class="hero__inner">
+      <p class="hero__eyebrow">ADMIN</p>
+      <h1 class="hero__name" id="adminSalonName">管理画面</h1>
+      <div class="hero__divider"><span></span></div>
+      <p class="hero__meta">予約の確認・時間のブロック・メニュー/スタッフ/営業時間の管理</p>
+    </div>
+  </header>
+
+  <div class="app admin-app">
+    <div id="demoNotice" class="demo-banner" style="display:none;">
+      デモモードのため管理画面は利用できません。config.js の API_URL を設定してください。
+    </div>
+
+    <div id="loginScreen" class="card">
+      <h2>管理者ログイン</h2>
+      <div class="field">
+        <label>パスワード</label>
+        <input type="password" id="loginPassword" placeholder="パスワードを入力">
+      </div>
+      <p id="loginError" class="field-error" style="display:none;">パスワードが違います</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="loginBtn">ログイン</button>
+      </div>
+    </div>
+
+    <div id="dashboard" style="display:none;">
+      <nav class="admin-tabs" id="adminTabs">
+        <button class="admin-tab active" data-tab="reservations">予約一覧</button>
+        <button class="admin-tab" data-tab="block">時間をブロック</button>
+        <button class="admin-tab" data-tab="menu">メニュー</button>
+        <button class="admin-tab" data-tab="staff">スタッフ</button>
+        <button class="admin-tab" data-tab="settings">店舗設定</button>
+      </nav>
+      <main class="card" id="adminContainer"></main>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
