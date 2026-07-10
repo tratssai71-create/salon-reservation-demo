@@ -243,20 +243,6 @@ body {
   white-space: nowrap;
 }
 
-.staff-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(150deg, var(--ac), var(--ac-d));
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Shippori Mincho", serif;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
 /* 日時選択（○×の空き状況表） */
 .avail-nav {
   display: flex;
@@ -466,6 +452,11 @@ body {
   font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: opacity 0.15s, background 0.15s;
 }
 
@@ -493,6 +484,13 @@ body {
   letter-spacing: 0.05em;
   color: var(--ink3);
 }
+
+.footer-link {
+  color: var(--ac-d);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+}
+.footer-link:hover { text-decoration: underline; }
 
 /* ---------- レスポンシブ（スマホ） ---------- */
 @media (max-width: 480px) {

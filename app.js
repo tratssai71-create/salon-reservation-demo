@@ -5,7 +5,7 @@
 
 (() => {
   const CFG = SALON_CONFIG;
-  const STEP_LABELS = ["メニュー", "日時", "スタッフ", "情報", "確認"];
+  const STEP_LABELS = ["メニュー", "日時", "情報", "確認"];
   const DOW_JA = ["日", "月", "火", "水", "木", "金", "土"];
   const DAYS_PER_PAGE = 7;
   const isDemo = !CFG.API_URL;
@@ -15,7 +15,6 @@
     menu: null,
     date: null, // "YYYY-MM-DD"
     time: null, // "HH:MM"
-    staff: null, // {id,name} or {id:'', name:'指名なし'}
     customer: { name: "", tel: "", email: "", note: "" },
     gridStartOffset: 0, // 表示中の週の開始日（今日からの日数）
     slotsCache: {},
@@ -192,10 +191,9 @@
     renderSteps();
     if (state.step === 1) renderMenuStep();
     else if (state.step === 2) renderDateTimeStep();
-    else if (state.step === 3) renderStaffStep();
-    else if (state.step === 4) renderInfoStep();
-    else if (state.step === 5) renderConfirmStep();
-    else if (state.step === 6) renderDoneStep();
+    else if (state.step === 3) renderInfoStep();
+    else if (state.step === 4) renderConfirmStep();
+    else if (state.step === 5) renderDoneStep();
   }
 
   function renderMenuStep() {
@@ -316,40 +314,6 @@
     document.getElementById("back").addEventListener("click", () => { state.step = 1; render(); });
   }
 
-  function renderStaffStep() {
-    const options = [{ id: "", name: "指名なし", role: "" }, ...CFG.staff];
-    $container.innerHTML = `
-      <h2>スタッフを選択してください</h2>
-      <div class="option-list">
-        ${options.map((s) => `
-          <div class="option-item ${state.staff?.id === s.id ? "selected" : ""}" data-id="${s.id}">
-            <div class="staff-avatar">${s.name.charAt(0)}</div>
-            <div class="option-item__main">
-              <span class="option-item__name">${s.name}</span>
-              ${s.role ? `<span class="option-item__meta">${s.role}</span>` : ""}
-            </div>
-          </div>
-        `).join("")}
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" id="back">戻る</button>
-        <button class="btn btn-primary" id="next" ${state.staff ? "" : "disabled"}>次へ</button>
-      </div>
-    `;
-    $container.querySelectorAll(".option-item").forEach((el) => {
-      el.addEventListener("click", () => {
-        state.staff = options.find((s) => s.id === el.dataset.id);
-        render();
-      });
-    });
-    document.getElementById("back").addEventListener("click", () => { state.step = 2; render(); });
-    document.getElementById("next").addEventListener("click", () => {
-      if (!state.staff) return;
-      state.step = 4;
-      render();
-    });
-  }
-
   function renderInfoStep() {
     const c = state.customer;
     $container.innerHTML = `
@@ -378,7 +342,7 @@
         <button class="btn btn-primary" id="next">確認画面へ</button>
       </div>
     `;
-    document.getElementById("back").addEventListener("click", () => { state.step = 3; render(); });
+    document.getElementById("back").addEventListener("click", () => { state.step = 2; render(); });
     document.getElementById("next").addEventListener("click", () => {
       const name = document.getElementById("name").value.trim();
       const tel = document.getElementById("tel").value.trim();
@@ -395,7 +359,7 @@
       if (!name || !telOk || !emailOk) return;
 
       state.customer = { name, tel, email, note };
-      state.step = 5;
+      state.step = 4;
       render();
     });
   }
@@ -407,7 +371,6 @@
       <ul class="confirm-list">
         <li><span>メニュー</span><span>${state.menu.categoryLabel} - ${state.menu.name}（${fmtPrice(state.menu.price)}）</span></li>
         <li><span>日時</span><span>${fmtDateLabel(state.date)} ${state.time}〜</span></li>
-        <li><span>担当</span><span>${state.staff.name}</span></li>
         <li><span>お名前</span><span>${c.name}</span></li>
         <li><span>電話番号</span><span>${c.tel}</span></li>
         <li><span>メール</span><span>${c.email}</span></li>
@@ -419,7 +382,7 @@
         <button class="btn btn-primary" id="confirm">予約を確定する</button>
       </div>
     `;
-    document.getElementById("back").addEventListener("click", () => { state.step = 4; render(); });
+    document.getElementById("back").addEventListener("click", () => { state.step = 3; render(); });
     document.getElementById("confirm").addEventListener("click", async (e) => {
       e.target.disabled = true;
       e.target.textContent = "送信中…";
@@ -431,8 +394,7 @@
         price: state.menu.price,
         date: state.date,
         time: state.time,
-        staffId: state.staff.id,
-        staffName: state.staff.name,
+        staffName: CFG.owner ? CFG.owner.name : "",
         name: c.name,
         tel: c.tel,
         email: c.email,
@@ -442,7 +404,7 @@
         const result = await submitReservation(payload);
         if (result.success) {
           state.reservationId = result.reservationId;
-          state.step = 6;
+          state.step = 5;
           render();
         } else {
           alert("予約に失敗しました。時間を変えて再度お試しください。");
@@ -467,7 +429,6 @@
       <ul class="confirm-list">
         <li><span>メニュー</span><span>${state.menu.name}</span></li>
         <li><span>日時</span><span>${fmtDateLabel(state.date)} ${state.time}〜</span></li>
-        <li><span>担当</span><span>${state.staff.name}</span></li>
       </ul>
       <div class="btn-row">
         <button class="btn btn-primary" id="restart">新しく予約する</button>
@@ -478,7 +439,6 @@
       state.menu = null;
       state.date = null;
       state.time = null;
-      state.staff = null;
       state.customer = { name: "", tel: "", email: "", note: "" };
       state.slotsCache = {};
       state.gridStartOffset = 0;

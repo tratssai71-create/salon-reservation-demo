@@ -502,46 +502,35 @@
     saveConfig("menuMsg");
   }
 
-  // ---------- スタッフ管理 ----------
+  // ---------- スタッフ紹介（一人サロンのプロフィール） ----------
   function renderStaff() {
+    if (!config.owner) config.owner = { name: "", role: "", bio: "", photoUrl: "" };
+    const o = config.owner;
     $adminContainer.innerHTML = `
-      <div class="admin-section-head"><h2>スタッフ管理</h2>
+      <div class="admin-section-head"><h2>スタッフ紹介</h2>
         <button class="btn btn-primary btn-small" id="staffSave">保存する</button>
       </div>
+      <p style="color:var(--ink2);font-size:0.82rem;margin-top:-10px;">一人で運営されているため、予約時のスタッフ選択はありません。ここで設定した内容がお客様向けの「スタッフ紹介」ページに表示されます。</p>
       ${msgHtml("staffMsg")}
-      <div id="staffRows"></div>
-      <button class="admin-add-btn" id="addStaff">＋ スタッフを追加</button>
-    `;
-    renderStaffRows();
-    document.getElementById("addStaff").addEventListener("click", () => {
-      config.staff.push({ id: newId("staff"), name: "", role: "" });
-      renderStaffRows();
-    });
-    document.getElementById("staffSave").addEventListener("click", () => {
-      document.querySelectorAll("#staffRows .admin-staff-row").forEach(($row) => {
-        const si = Number($row.dataset.si);
-        config.staff[si].name = $row.querySelector(".staff-name").value.trim();
-        config.staff[si].role = $row.querySelector(".staff-role").value.trim();
-      });
-      saveConfig("staffMsg");
-    });
-  }
-
-  function renderStaffRows() {
-    const $rows = document.getElementById("staffRows");
-    $rows.innerHTML = config.staff.map((s, si) => `
-      <div class="admin-staff-row" data-si="${si}">
-        <input type="text" class="staff-name" value="${s.name}" placeholder="氏名">
-        <input type="text" class="staff-role" value="${s.role}" placeholder="役職（例: トップスタイリスト）">
-        <button class="icon-btn staff-del" title="削除">✕</button>
+      <div class="admin-row-2">
+        <div class="field"><label>お名前</label><input type="text" id="o_name" value="${o.name || ""}" placeholder="例: 田中 美咲"></div>
+        <div class="field"><label>肩書き</label><input type="text" id="o_role" value="${o.role || ""}" placeholder="例: オーナー / スタイリスト"></div>
       </div>
-    `).join("");
-    $rows.querySelectorAll(".staff-del").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const si = Number(btn.closest(".admin-staff-row").dataset.si);
-        config.staff.splice(si, 1);
-        renderStaffRows();
-      });
+      <div class="field"><label>紹介文</label><textarea id="o_bio" placeholder="経歴やこだわりなど">${o.bio || ""}</textarea></div>
+      <div class="field">
+        <label>写真URL（任意）</label>
+        <input type="text" id="o_photo" value="${o.photoUrl || ""}" placeholder="https://...">
+        <p style="color:var(--ink2);font-size:0.76rem;margin-top:6px;">空欄のままだと、お客様向けページにはイラストのプレースホルダーが表示されます。</p>
+      </div>
+    `;
+    document.getElementById("staffSave").addEventListener("click", () => {
+      config.owner = {
+        name: document.getElementById("o_name").value.trim(),
+        role: document.getElementById("o_role").value.trim(),
+        bio: document.getElementById("o_bio").value.trim(),
+        photoUrl: document.getElementById("o_photo").value.trim(),
+      };
+      saveConfig("staffMsg");
     });
   }
 

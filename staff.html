@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スタッフ紹介</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="staff.css">
+</head>
+<body>
+<header class="hero">
+  <div class="hero__inner">
+    <p class="hero__eyebrow">OUR STYLIST</p>
+    <h1 class="hero__name" id="salonName">SALON NAME</h1>
+    <p class="hero__tagline" id="salonTagline"></p>
+    <div class="hero__divider"><span></span></div>
+    <p class="hero__meta" id="salonMeta"></p>
+  </div>
+</header>
+
+<div class="app">
+  <main class="card staff-card">
+    <div class="staff-photo" id="staffPhoto">
+      <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="120" cy="120" r="119" fill="#f3ece1"/>
+        <circle cx="120" cy="120" r="118" fill="none" stroke="#a97c4f" stroke-width="1.5" opacity="0.35"/>
+        <circle cx="120" cy="96" r="38" fill="#a97c4f" opacity="0.85"/>
+        <path d="M52 214 C52 156 81 130 120 130 C159 130 188 156 188 214 Z" fill="#a97c4f" opacity="0.85"/>
+      </svg>
+    </div>
+    <h2 class="staff-name" id="staffName"></h2>
+    <p class="staff-role" id="staffRole"></p>
+    <div class="hero__divider"><span></span></div>
+    <p class="staff-bio" id="staffBio"></p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="index.html">ご予約はこちら</a>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p id="salonFooterMeta"></p>
+  </footer>
+</div>
+
+<script src="config.js"></script>
+<script src="staff.js"></script>
+</body>
+</html>
