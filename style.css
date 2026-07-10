@@ -438,6 +438,49 @@ body {
   margin-bottom: 24px;
 }
 
+/* スタッフ紹介ステップ */
+.staff-intro { text-align: center; padding: 4px 0 8px; }
+
+.staff-photo {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(42, 35, 29, 0.14);
+}
+.staff-photo svg,
+.staff-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.staff-name {
+  font-family: "Shippori Mincho", serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+}
+
+.staff-role {
+  font-family: "Inter", sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  color: var(--ac-d);
+  margin: 0 0 16px;
+}
+
+.staff-bio {
+  max-width: 400px;
+  margin: 0 auto;
+  font-size: 0.88rem;
+  line-height: 1.85;
+  color: var(--ink2);
+  text-align: left;
+}
+
 /* ボタン */
 .btn-row { display: flex; gap: 10px; margin-top: 26px; }
 
