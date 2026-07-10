@@ -201,11 +201,16 @@
 
   // ---------- 時間をブロック（カレンダー形式） ----------
   let blockGridOffset = 0;
+  let selectMode = false;
+  let selectedSlots = new Map(); // key: "date_time" -> { type: "open"|"blocked", date, time, eventId }
 
   function renderBlock() {
     $adminContainer.innerHTML = `
-      <div class="admin-section-head"><h2>時間をブロック</h2></div>
-      <p style="color:var(--ink2);font-size:0.82rem;margin-top:-10px;">○をクリックするとその時間を予約不可にします。×（グレー）をクリックするとブロックを解除します。予約済み（オレンジ）はここからは操作できません。</p>
+      <div class="admin-section-head">
+        <h2>時間をブロック</h2>
+        <button class="btn btn-small ${selectMode ? "btn-primary" : "btn-ghost"}" id="selectModeToggle">${selectMode ? "選択モードを終了" : "まとめて選択して変更"}</button>
+      </div>
+      <p style="color:var(--ink2);font-size:0.82rem;margin-top:-10px;">${selectMode ? "変更したいマスを複数タップして選んでから、下のボタンでまとめて反映します。" : "○をクリックするとその時間を予約不可にします。×（グレー）をクリックするとブロックを解除します。予約済み（オレンジ）はここからは操作できません。"}</p>
       ${msgHtml("blockMsg")}
       <div class="avail-nav">
         <button id="blockPrev">‹ 前の7日</button>
@@ -218,7 +223,15 @@
           <tbody id="blockTbody"><tr><td class="empty-msg">読み込み中…</td></tr></tbody>
         </table>
       </div>
-      <p class="avail-legend">○ 空き（クリックでブロック） 　× ブロック中（クリックで解除） 　予 ご予約あり 　－ 定休日・受付終了</p>
+      <p class="avail-legend">○ 空き 　× ブロック中 　予 ご予約あり 　－ 定休日・受付終了</p>
+      <div id="selectBar" class="select-bar" style="display:none;">
+        <span id="selectCount">0件選択中</span>
+        <div class="select-bar__btns">
+          <button class="btn btn-small btn-primary" id="selectApplyBlock">選んだ枠をブロックする</button>
+          <button class="btn btn-small btn-ghost" id="selectApplyUnblock">選んだ枠を解除する</button>
+          <button class="btn btn-small btn-ghost" id="selectClear">選択解除</button>
+        </div>
+      </div>
     `;
     document.getElementById("blockPrev").addEventListener("click", () => {
       blockGridOffset = Math.max(0, blockGridOffset - 7);
@@ -228,6 +241,43 @@
       blockGridOffset += 7;
       refreshBlockTable();
     });
+    document.getElementById("selectModeToggle").addEventListener("click", () => {
+      selectMode = !selectMode;
+      selectedSlots.clear();
+      renderBlock();
+    });
+    document.getElementById("selectClear").addEventListener("click", () => {
+      selectedSlots.clear();
+      refreshBlockTable();
+    });
+    document.getElementById("selectApplyBlock").addEventListener("click", () => applySelection_("block"));
+    document.getElementById("selectApplyUnblock").addEventListener("click", () => applySelection_("unblock"));
+    refreshBlockTable();
+  }
+
+  function updateSelectBar_() {
+    const $bar = document.getElementById("selectBar");
+    if (!selectMode) { $bar.style.display = "none"; return; }
+    $bar.style.display = "flex";
+    document.getElementById("selectCount").textContent = `${selectedSlots.size}件選択中`;
+  }
+
+  async function applySelection_(mode) {
+    const targets = [...selectedSlots.values()].filter((s) => (mode === "block" ? s.type === "open" : s.type === "blocked"));
+    if (targets.length === 0) {
+      showMsg("blockMsg", mode === "block" ? "空き（○）のマスを選んでください" : "ブロック中（×）のマスを選んでください", false);
+      return;
+    }
+    for (const t of targets) {
+      if (mode === "block") {
+        const endTime = toHHMM(toMinutes(t.time) + config.slotIntervalMin);
+        await apiPost("adminBlockTime", { date: t.date, startTime: t.time, endTime, reason: "管理者によるブロック" });
+      } else {
+        await apiPost("adminCancelReservation", { eventId: t.eventId });
+      }
+    }
+    selectedSlots.clear();
+    showMsg("blockMsg", "反映しました", true);
     refreshBlockTable();
   }
 
@@ -274,11 +324,13 @@
         const isPast = d === todK && toMinutes(label) <= now.getHours() * 60 + now.getMinutes();
         if (isPast) return `<td class="avail-td avail-td--closed">－</td>`;
         const hit = statusAt(d, label);
+        const key = `${d}_${label}`;
+        const selected = selectedSlots.has(key);
         if (!hit) {
-          return `<td class="avail-td avail-td--open" data-action="block" data-date="${d}" data-time="${label}">○</td>`;
+          return `<td class="avail-td avail-td--open ${selected ? "avail-td--selected" : ""}" data-action="block" data-date="${d}" data-time="${label}">○</td>`;
         }
         if (hit.type === "blocked") {
-          return `<td class="avail-td avail-td--blocked-cell" data-action="unblock" data-id="${hit.eventId}" title="クリックで解除">×</td>`;
+          return `<td class="avail-td avail-td--blocked-cell ${selected ? "avail-td--selected" : ""}" data-action="unblock" data-id="${hit.eventId}" data-date="${d}" data-time="${label}" title="クリックで解除">×</td>`;
         }
         return `<td class="avail-td avail-td--reserved-cell" title="${hit.title}">予</td>`;
       }).join("");
@@ -287,11 +339,20 @@
 
     document.getElementById("blockThead").innerHTML = `<tr><th class="avail-th-time"></th>${headerCells}</tr>`;
     document.getElementById("blockTbody").innerHTML = bodyRows;
+    updateSelectBar_();
 
     document.querySelectorAll("[data-action='block']").forEach((cell) => {
       cell.addEventListener("click", async () => {
         const date = cell.dataset.date;
         const startTime = cell.dataset.time;
+        if (selectMode) {
+          const key = `${date}_${startTime}`;
+          if (selectedSlots.has(key)) selectedSlots.delete(key);
+          else selectedSlots.set(key, { type: "open", date, time: startTime });
+          cell.classList.toggle("avail-td--selected");
+          updateSelectBar_();
+          return;
+        }
         const endTime = toHHMM(toMinutes(startTime) + config.slotIntervalMin);
         cell.textContent = "…";
         cell.style.pointerEvents = "none";
@@ -302,6 +363,16 @@
     });
     document.querySelectorAll("[data-action='unblock']").forEach((cell) => {
       cell.addEventListener("click", async () => {
+        if (selectMode) {
+          const date = cell.dataset.date;
+          const time = cell.dataset.time;
+          const key = `${date}_${time}`;
+          if (selectedSlots.has(key)) selectedSlots.delete(key);
+          else selectedSlots.set(key, { type: "blocked", date, time, eventId: cell.dataset.id });
+          cell.classList.toggle("avail-td--selected");
+          updateSelectBar_();
+          return;
+        }
         cell.textContent = "…";
         cell.style.pointerEvents = "none";
         const r = await apiPost("adminCancelReservation", { eventId: cell.dataset.id });
@@ -341,11 +412,33 @@
         <div class="admin-item-rows">
           ${cat.items.map((item, ii) => `
             <div class="admin-item-row" data-ii="${ii}">
-              <input type="text" class="item-name" value="${item.name}" placeholder="メニュー名">
-              <input type="number" class="item-duration" value="${item.durationMin}" placeholder="分" min="5" step="5">
-              <input type="number" class="item-price" value="${item.price}" placeholder="円" min="0" step="100">
-              <input type="text" class="item-desc" value="${item.desc || ""}" placeholder="説明（任意）">
-              <button class="icon-btn item-del" title="削除">✕</button>
+              <div class="admin-item-row__top">
+                <div class="admin-item-field admin-item-field--name">
+                  <label>メニュー名</label>
+                  <input type="text" class="item-name" value="${item.name}" placeholder="例: カット（フリー指名）">
+                </div>
+                <button class="icon-btn item-del" title="このメニューを削除">✕</button>
+              </div>
+              <div class="admin-item-row__bottom">
+                <div class="admin-item-field admin-item-field--num">
+                  <label>所要時間</label>
+                  <div class="admin-item-field__suffix">
+                    <input type="number" class="item-duration" value="${item.durationMin}" min="5" step="5">
+                    <span>分</span>
+                  </div>
+                </div>
+                <div class="admin-item-field admin-item-field--num">
+                  <label>料金</label>
+                  <div class="admin-item-field__prefix">
+                    <span>¥</span>
+                    <input type="number" class="item-price" value="${item.price}" min="0" step="100">
+                  </div>
+                </div>
+                <div class="admin-item-field admin-item-field--desc">
+                  <label>説明（任意）</label>
+                  <input type="text" class="item-desc" value="${item.desc || ""}" placeholder="例: 根元から毛先まで">
+                </div>
+              </div>
             </div>
           `).join("")}
         </div>
