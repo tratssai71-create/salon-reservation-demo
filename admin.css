@@ -113,12 +113,56 @@
 /* カテゴリ／メニュー編集 */
 .admin-cat {
   border: 1px solid var(--line);
+  border-left: 3px solid var(--ac);
   border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
+  background: #fbf8f4;
 }
-.admin-cat-head { display: flex; gap: 8px; margin-bottom: 10px; }
-.admin-cat-head input { flex: 1; }
+
+.admin-cat-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-cat-head__num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ac-soft);
+  color: var(--ac-d);
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+.admin-cat-head__fields {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.admin-cat-head__fields .admin-item-field { flex: 1; min-width: 0; }
+.admin-cat-head__fields input { font-weight: 500; }
+
+.admin-cat-head__count {
+  font-size: 0.72rem;
+  color: var(--ink2);
+  white-space: nowrap;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.cat-collapse { font-size: 0.8rem; }
 
 .admin-item-row {
   border: 1px solid var(--line);
@@ -256,4 +300,6 @@
 
 @media (max-width: 480px) {
   .hero--admin { padding: 32px 14px 28px; }
+  .admin-cat-head { flex-wrap: wrap; }
+  .admin-cat-head__fields { flex-basis: 100%; order: 3; }
 }

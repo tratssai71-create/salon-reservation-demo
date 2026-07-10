@@ -400,16 +400,29 @@
     document.getElementById("menuSave").addEventListener("click", saveMenu);
   }
 
+  let collapsedCats = new Set();
+
   function renderMenuCats() {
     const $cats = document.getElementById("menuCats");
     $cats.innerHTML = config.menuCategories.map((cat, ci) => `
       <div class="admin-cat" data-ci="${ci}">
         <div class="admin-cat-head">
-          <input type="text" class="cat-en" value="${cat.name}" placeholder="英語表記 (例: CUT)">
-          <input type="text" class="cat-ja" value="${cat.label}" placeholder="日本語表記 (例: カット)">
+          <div class="admin-cat-head__num">${ci + 1}</div>
+          <div class="admin-cat-head__fields">
+            <div class="admin-item-field">
+              <label>日本語表記</label>
+              <input type="text" class="cat-ja" value="${cat.label}" placeholder="例: カット">
+            </div>
+            <div class="admin-item-field">
+              <label>英語表記</label>
+              <input type="text" class="cat-en" value="${cat.name}" placeholder="例: CUT">
+            </div>
+          </div>
+          <span class="admin-cat-head__count">${cat.items.length}件</span>
+          <button class="icon-btn cat-collapse" title="折りたたむ">${collapsedCats.has(ci) ? "▸" : "▾"}</button>
           <button class="icon-btn cat-del" title="カテゴリ削除">✕</button>
         </div>
-        <div class="admin-item-rows">
+        <div class="admin-item-rows" style="${collapsedCats.has(ci) ? "display:none;" : ""}">
           ${cat.items.map((item, ii) => `
             <div class="admin-item-row" data-ii="${ii}">
               <div class="admin-item-row__top">
@@ -442,18 +455,24 @@
             </div>
           `).join("")}
         </div>
-        <button class="admin-add-btn add-item">＋ メニューを追加</button>
+        <button class="admin-add-btn add-item" style="${collapsedCats.has(ci) ? "display:none;" : ""}">＋ メニューを追加</button>
       </div>
     `).join("");
 
     $cats.querySelectorAll(".admin-cat").forEach(($cat) => {
       const ci = Number($cat.dataset.ci);
+      $cat.querySelector(".cat-collapse").addEventListener("click", () => {
+        if (collapsedCats.has(ci)) collapsedCats.delete(ci);
+        else collapsedCats.add(ci);
+        renderMenuCats();
+      });
       $cat.querySelector(".cat-del").addEventListener("click", () => {
         config.menuCategories.splice(ci, 1);
         renderMenuCats();
       });
       $cat.querySelector(".add-item").addEventListener("click", () => {
         config.menuCategories[ci].items.push({ id: newId("item"), name: "", durationMin: 60, price: 0, desc: "" });
+        collapsedCats.delete(ci);
         renderMenuCats();
       });
       $cat.querySelectorAll(".item-del").forEach((btn) => {
