@@ -202,17 +202,43 @@
   // ---------- 時間をブロック（カレンダー形式） ----------
   let blockGridOffset = 0;
 
-  async function renderBlock() {
-    const todK = todayKey();
-    const pageDates = Array.from({ length: 7 }, (_, i) => addDays(todK, blockGridOffset + i));
-    const timeLabels = allTimeLabels();
-
+  function renderBlock() {
     $adminContainer.innerHTML = `
       <div class="admin-section-head"><h2>時間をブロック</h2></div>
       <p style="color:var(--ink2);font-size:0.82rem;margin-top:-10px;">○をクリックするとその時間を予約不可にします。×（グレー）をクリックするとブロックを解除します。予約済み（オレンジ）はここからは操作できません。</p>
       ${msgHtml("blockMsg")}
-      <div class="loading">読み込み中…</div>
+      <div class="avail-nav">
+        <button id="blockPrev">‹ 前の7日</button>
+        <span class="avail-nav__label" id="blockNavLabel"></span>
+        <button id="blockNext">次の7日 ›</button>
+      </div>
+      <div class="avail-scroll">
+        <table class="avail-table">
+          <thead id="blockThead"></thead>
+          <tbody id="blockTbody"><tr><td class="empty-msg">読み込み中…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="avail-legend">○ 空き（クリックでブロック） 　× ブロック中（クリックで解除） 　予 ご予約あり 　－ 定休日・受付終了</p>
     `;
+    document.getElementById("blockPrev").addEventListener("click", () => {
+      blockGridOffset = Math.max(0, blockGridOffset - 7);
+      refreshBlockTable();
+    });
+    document.getElementById("blockNext").addEventListener("click", () => {
+      blockGridOffset += 7;
+      refreshBlockTable();
+    });
+    refreshBlockTable();
+  }
+
+  // テーブル部分だけを再取得・再描画する（画面全体を「読み込み中」に戻さないため）
+  async function refreshBlockTable() {
+    const todK = todayKey();
+    const pageDates = Array.from({ length: 7 }, (_, i) => addDays(todK, blockGridOffset + i));
+    const timeLabels = allTimeLabels();
+
+    document.getElementById("blockPrev").disabled = blockGridOffset <= 0;
+    document.getElementById("blockNavLabel").textContent = `${pageDates[0]} 〜 ${pageDates[6]}`;
 
     const from = pageDates[0];
     const to = addDays(pageDates[pageDates.length - 1], 1);
@@ -259,50 +285,28 @@
       return `<tr><th class="avail-th-time">${label}</th>${cells}</tr>`;
     }).join("");
 
-    $adminContainer.innerHTML = `
-      <div class="admin-section-head"><h2>時間をブロック</h2></div>
-      <p style="color:var(--ink2);font-size:0.82rem;margin-top:-10px;">○をクリックするとその時間を予約不可にします。×（グレー）をクリックするとブロックを解除します。予約済み（オレンジ）はここからは操作できません。</p>
-      ${msgHtml("blockMsg")}
-      <div class="avail-nav">
-        <button id="blockPrev" ${blockGridOffset <= 0 ? "disabled" : ""}>‹ 前の7日</button>
-        <span class="avail-nav__label">${pageDates[0]} 〜 ${pageDates[6]}</span>
-        <button id="blockNext">次の7日 ›</button>
-      </div>
-      <div class="avail-scroll">
-        <table class="avail-table">
-          <thead><tr><th class="avail-th-time"></th>${headerCells}</tr></thead>
-          <tbody>${bodyRows}</tbody>
-        </table>
-      </div>
-      <p class="avail-legend">○ 空き（クリックでブロック） 　× ブロック中（クリックで解除） 　予 ご予約あり 　－ 定休日・受付終了</p>
-    `;
+    document.getElementById("blockThead").innerHTML = `<tr><th class="avail-th-time"></th>${headerCells}</tr>`;
+    document.getElementById("blockTbody").innerHTML = bodyRows;
 
-    document.getElementById("blockPrev").addEventListener("click", () => {
-      blockGridOffset = Math.max(0, blockGridOffset - 7);
-      renderBlock();
-    });
-    document.getElementById("blockNext").addEventListener("click", () => {
-      blockGridOffset += 7;
-      renderBlock();
-    });
-
-    $adminContainer.querySelectorAll("[data-action='block']").forEach((cell) => {
+    document.querySelectorAll("[data-action='block']").forEach((cell) => {
       cell.addEventListener("click", async () => {
         const date = cell.dataset.date;
         const startTime = cell.dataset.time;
         const endTime = toHHMM(toMinutes(startTime) + config.slotIntervalMin);
         cell.textContent = "…";
+        cell.style.pointerEvents = "none";
         const r = await apiPost("adminBlockTime", { date, startTime, endTime, reason: "管理者によるブロック" });
-        if (r.success) renderBlock();
-        else { showMsg("blockMsg", "失敗しました", false); renderBlock(); }
+        if (!r.success) showMsg("blockMsg", "失敗しました", false);
+        refreshBlockTable();
       });
     });
-    $adminContainer.querySelectorAll("[data-action='unblock']").forEach((cell) => {
+    document.querySelectorAll("[data-action='unblock']").forEach((cell) => {
       cell.addEventListener("click", async () => {
         cell.textContent = "…";
+        cell.style.pointerEvents = "none";
         const r = await apiPost("adminCancelReservation", { eventId: cell.dataset.id });
-        if (r.success) renderBlock();
-        else { showMsg("blockMsg", "失敗しました", false); renderBlock(); }
+        if (!r.success) showMsg("blockMsg", "失敗しました", false);
+        refreshBlockTable();
       });
     });
   }
