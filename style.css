@@ -1,15 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
-  --bg: #f6f2ec;
-  --card: #fffdfa;
-  --ink: #2a231d;
-  --ink2: rgba(42, 35, 29, 0.6);
-  --ink3: rgba(42, 35, 29, 0.32);
-  --ac: #a97c4f;
-  --ac-d: #7c5934;
-  --ac-soft: rgba(169, 124, 79, 0.1);
-  --line: rgba(42, 35, 29, 0.12);
+  --bg: #f5f4f2;
+  --card: #ffffff;
+  --ink: #2b2b2b;
+  --ink2: rgba(43, 43, 43, 0.6);
+  --ink3: rgba(43, 43, 43, 0.32);
+  --ac: #a68a4a;
+  --ac-d: #8a7239;
+  --ac-soft: rgba(166, 138, 74, 0.1);
+  --line: rgba(43, 43, 43, 0.12);
   --danger: #a8443b;
   --radius: 16px;
 }
@@ -28,9 +28,9 @@ body {
 .hero {
   position: relative;
   background:
-    radial-gradient(circle at 50% -10%, rgba(169, 124, 79, 0.35), transparent 60%),
-    linear-gradient(160deg, #2a231d 0%, #1c1712 65%, #100d0a 100%);
-  color: #f3ece1;
+    radial-gradient(circle at 50% -10%, rgba(166, 138, 74, 0.35), transparent 60%),
+    linear-gradient(160deg, #2b2b2b 0%, #1c1c1c 65%, #0d0d0d 100%);
+  color: #f0efec;
   padding: 64px 20px 56px;
   text-align: center;
   overflow: hidden;
@@ -51,7 +51,7 @@ body {
   font-family: "Inter", sans-serif;
   font-size: 0.7rem;
   letter-spacing: 0.42em;
-  color: rgba(243, 236, 225, 0.55);
+  color: rgba(240, 239, 236, 0.55);
   margin: 0 0 18px;
   text-transform: uppercase;
 }
@@ -68,7 +68,7 @@ body {
   font-family: "Shippori Mincho", serif;
   font-size: 0.95rem;
   letter-spacing: 0.14em;
-  color: rgba(243, 236, 225, 0.78);
+  color: rgba(240, 239, 236, 0.78);
   margin: 0;
 }
 
@@ -91,7 +91,7 @@ body {
   content: "";
   height: 1px;
   width: 64px;
-  background: rgba(243, 236, 225, 0.25);
+  background: rgba(240, 239, 236, 0.25);
   margin: 0 14px;
 }
 
@@ -99,7 +99,7 @@ body {
   font-family: "Inter", sans-serif;
   font-size: 0.72rem;
   letter-spacing: 0.04em;
-  color: rgba(243, 236, 225, 0.5);
+  color: rgba(240, 239, 236, 0.5);
   margin: 0;
 }
 
@@ -132,7 +132,7 @@ body {
   border-radius: var(--radius);
   border: 1px solid var(--line);
   padding: 16px 10px 12px;
-  box-shadow: 0 10px 32px rgba(42, 35, 29, 0.06);
+  box-shadow: 0 10px 32px rgba(43, 43, 43, 0.06);
 }
 
 .step-dot {
@@ -170,7 +170,7 @@ body {
   border-radius: var(--radius);
   border: 1px solid var(--line);
   padding: 28px 22px;
-  box-shadow: 0 12px 36px rgba(42, 35, 29, 0.07);
+  box-shadow: 0 12px 36px rgba(43, 43, 43, 0.07);
 }
 
 .card h2 {
@@ -229,7 +229,7 @@ body {
 .option-item.selected {
   border-color: var(--ac);
   background: var(--ac-soft);
-  box-shadow: 0 2px 14px rgba(169, 124, 79, 0.18);
+  box-shadow: 0 2px 14px rgba(166, 138, 74, 0.18);
 }
 
 .option-item__main { display: flex; flex-direction: column; gap: 3px; flex: 1; }
@@ -307,7 +307,7 @@ body {
 }
 
 .avail-th {
-  background: #faf6f0;
+  background: #f4f3f1;
   padding: 8px 4px !important;
   min-width: 68px;
 }
@@ -416,7 +416,7 @@ body {
   justify-content: center;
   font-size: 1.7rem;
   margin: 0 auto 20px;
-  box-shadow: 0 8px 22px rgba(169, 124, 79, 0.35);
+  box-shadow: 0 8px 22px rgba(166, 138, 74, 0.35);
 }
 
 .done-title {
@@ -436,49 +436,6 @@ body {
   font-size: 1.3rem;
   color: var(--ac-d);
   margin-bottom: 24px;
-}
-
-/* スタッフ紹介ステップ */
-.staff-intro { text-align: center; padding: 4px 0 8px; }
-
-.staff-photo {
-  width: 140px;
-  height: 140px;
-  margin: 0 auto 18px;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow: 0 10px 26px rgba(42, 35, 29, 0.14);
-}
-.staff-photo svg,
-.staff-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.staff-name {
-  font-family: "Shippori Mincho", serif;
-  font-weight: 600;
-  font-size: 1.15rem;
-  margin: 0 0 4px;
-}
-
-.staff-role {
-  font-family: "Inter", sans-serif;
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  color: var(--ac-d);
-  margin: 0 0 16px;
-}
-
-.staff-bio {
-  max-width: 400px;
-  margin: 0 auto;
-  font-size: 0.88rem;
-  line-height: 1.85;
-  color: var(--ink2);
-  text-align: left;
 }
 
 /* ボタン */
@@ -527,13 +484,6 @@ body {
   letter-spacing: 0.05em;
   color: var(--ink3);
 }
-
-.footer-link {
-  color: var(--ac-d);
-  text-decoration: none;
-  letter-spacing: 0.08em;
-}
-.footer-link:hover { text-decoration: underline; }
 
 /* ---------- レスポンシブ（スマホ） ---------- */
 @media (max-width: 480px) {

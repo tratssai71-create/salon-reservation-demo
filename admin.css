@@ -4,9 +4,9 @@
 .avail-td--blocked-cell {
   color: var(--ink3);
   cursor: pointer;
-  background: rgba(42, 35, 29, 0.05);
+  background: rgba(43, 43, 43, 0.05);
 }
-.avail-td--blocked-cell:hover { background: rgba(42, 35, 29, 0.1); }
+.avail-td--blocked-cell:hover { background: rgba(43, 43, 43, 0.1); }
 
 .avail-td--reserved-cell {
   color: var(--ac-d);
@@ -18,7 +18,7 @@
 .avail-td--selected {
   outline: 2px solid var(--ac);
   outline-offset: -2px;
-  background: rgba(169, 124, 79, 0.22) !important;
+  background: rgba(166, 138, 74, 0.22) !important;
 }
 
 .select-bar {
@@ -117,7 +117,7 @@
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 18px;
-  background: #fbf8f4;
+  background: #f5f4f2;
 }
 
 .admin-cat-head {

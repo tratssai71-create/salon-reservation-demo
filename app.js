@@ -5,7 +5,7 @@
 
 (() => {
   const CFG = SALON_CONFIG;
-  const STEP_LABELS = ["メニュー", "スタッフ", "日時", "情報", "確認"];
+  const STEP_LABELS = ["メニュー", "日時", "情報", "確認"];
   const DOW_JA = ["日", "月", "火", "水", "木", "金", "土"];
   const DAYS_PER_PAGE = 7;
   const isDemo = !CFG.API_URL;
@@ -190,11 +190,10 @@
   function render() {
     renderSteps();
     if (state.step === 1) renderMenuStep();
-    else if (state.step === 2) renderStaffIntroStep();
-    else if (state.step === 3) renderDateTimeStep();
-    else if (state.step === 4) renderInfoStep();
-    else if (state.step === 5) renderConfirmStep();
-    else if (state.step === 6) renderDoneStep();
+    else if (state.step === 2) renderDateTimeStep();
+    else if (state.step === 3) renderInfoStep();
+    else if (state.step === 4) renderConfirmStep();
+    else if (state.step === 5) renderDoneStep();
   }
 
   function renderMenuStep() {
@@ -237,35 +236,6 @@
       state.step = 2;
       render();
     });
-  }
-
-  function renderStaffIntroStep() {
-    const o = CFG.owner || {};
-    $container.innerHTML = `
-      <h2>担当スタッフのご紹介</h2>
-      <div class="staff-intro">
-        <div class="staff-photo" id="staffIntroPhoto">
-          <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="120" cy="120" r="119" fill="#f3ece1"/>
-            <circle cx="120" cy="120" r="118" fill="none" stroke="#a97c4f" stroke-width="1.5" opacity="0.35"/>
-            <circle cx="120" cy="96" r="38" fill="#a97c4f" opacity="0.85"/>
-            <path d="M52 214 C52 156 81 130 120 130 C159 130 188 156 188 214 Z" fill="#a97c4f" opacity="0.85"/>
-          </svg>
-        </div>
-        <p class="staff-name">${o.name || ""}</p>
-        <p class="staff-role">${o.role || ""}</p>
-        <p class="staff-bio">${o.bio || ""}</p>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" id="back">戻る</button>
-        <button class="btn btn-primary" id="next">次へ</button>
-      </div>
-    `;
-    if (o.photoUrl) {
-      document.getElementById("staffIntroPhoto").innerHTML = `<img src="${o.photoUrl}" alt="${o.name || ""}">`;
-    }
-    document.getElementById("back").addEventListener("click", () => { state.step = 1; render(); });
-    document.getElementById("next").addEventListener("click", () => { state.step = 3; render(); });
   }
 
   async function renderDateTimeStep() {
@@ -337,11 +307,11 @@
       el.addEventListener("click", () => {
         state.date = el.dataset.date;
         state.time = el.dataset.time;
-        state.step = 4;
+        state.step = 3;
         render();
       });
     });
-    document.getElementById("back").addEventListener("click", () => { state.step = 2; render(); });
+    document.getElementById("back").addEventListener("click", () => { state.step = 1; render(); });
   }
 
   function renderInfoStep() {
@@ -372,7 +342,7 @@
         <button class="btn btn-primary" id="next">確認画面へ</button>
       </div>
     `;
-    document.getElementById("back").addEventListener("click", () => { state.step = 3; render(); });
+    document.getElementById("back").addEventListener("click", () => { state.step = 2; render(); });
     document.getElementById("next").addEventListener("click", () => {
       const name = document.getElementById("name").value.trim();
       const tel = document.getElementById("tel").value.trim();
@@ -389,7 +359,7 @@
       if (!name || !telOk || !emailOk) return;
 
       state.customer = { name, tel, email, note };
-      state.step = 5;
+      state.step = 4;
       render();
     });
   }
@@ -412,7 +382,7 @@
         <button class="btn btn-primary" id="confirm">予約を確定する</button>
       </div>
     `;
-    document.getElementById("back").addEventListener("click", () => { state.step = 4; render(); });
+    document.getElementById("back").addEventListener("click", () => { state.step = 3; render(); });
     document.getElementById("confirm").addEventListener("click", async (e) => {
       e.target.disabled = true;
       e.target.textContent = "送信中…";
@@ -424,7 +394,6 @@
         price: state.menu.price,
         date: state.date,
         time: state.time,
-        staffName: CFG.owner ? CFG.owner.name : "",
         name: c.name,
         tel: c.tel,
         email: c.email,
@@ -434,11 +403,11 @@
         const result = await submitReservation(payload);
         if (result.success) {
           state.reservationId = result.reservationId;
-          state.step = 6;
+          state.step = 5;
           render();
         } else {
           alert("予約に失敗しました。時間を変えて再度お試しください。");
-          state.step = 3;
+          state.step = 2;
           state.slotsCache = {};
           render();
         }

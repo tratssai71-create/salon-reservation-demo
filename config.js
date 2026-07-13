@@ -5,93 +5,70 @@
 // ==============================================
 
 const SALON_CONFIG = {
-  // 店舗情報
-  salonName: "Mira hair salon",
-  tagline: "髪と、暮らしをととのえる。",
-  tel: "086-000-0000",
-  address: "岡山県岡山市北区○○ 1-2-3",
+  // 店舗情報（racines.link の情報を反映）
+  salonName: "Racines（ラシネス）",
+  tagline: "内側から整う、本当の美しさへ。",
+  tel: "090-1337-6945",
+  address: "岡山県岡山市中区西川原246-1",
 
   // GAS Web AppのデプロイURL。
   // 空文字のままだとフロント単体の「デモモード」で動作します（localStorageに予約を保存、実際のカレンダーには入りません）。
   // README.md の手順でGASをデプロイしたら、取得したURLをここに設定してください。
   API_URL: "https://script.google.com/macros/s/AKfycbx-EvknENCNiIZHOE5uL-Tr69upmSxkgVZZUFQHGIstlrQ-uuHRMFNUaWIfqHLEoyyntQ/exec",
 
-  // 定休日（0=日曜〜6=土曜）。例: 月曜定休なら [1]
-  closedWeekdays: [1],
+  // 定休日（0=日曜〜6=土曜）。Racinesは「不定休」のため固定の定休日は設定せず、
+  // 休みたい日はその都度、管理画面の「時間をブロック」でその日をまとめてブロックしてください。
+  closedWeekdays: [],
 
   // 曜日別営業時間（分単位ではなく "HH:MM" で指定）
   businessHours: {
-    default: { open: "10:00", close: "19:00" },
+    default: { open: "10:00", close: "20:00" },
   },
 
   // 予約枠の刻み幅（分）
   slotIntervalMin: 30,
 
-  // メニュー一覧（カテゴリ別・すべて仮の架空プラン）
+  // メニュー一覧（racines.link/menu/ の内容を反映。所要時間の記載がなかったメニューは仮の時間を入れているので、
+  // 実際の時間に合わせて管理画面の「メニュー」タブから調整してください）
   menuCategories: [
     {
-      id: "cut",
-      name: "CUT",
-      label: "カット",
+      id: "herb",
+      name: "HERB TREATMENT",
+      label: "ハーブトリートメント",
       items: [
-        { id: "cut_free", name: "カット（フリー指名）", durationMin: 60, price: 4400, desc: "スタイリスト指名なし" },
-        { id: "cut_designate", name: "カット（指名）", durationMin: 60, price: 5500, desc: "スタイリストをご指名" },
-        { id: "cut_kids", name: "キッズカット（〜12歳）", durationMin: 40, price: 3300, desc: "" },
-      ],
-    },
-    {
-      id: "color",
-      name: "COLOR",
-      label: "カラー",
-      items: [
-        { id: "color_full", name: "フルカラー", durationMin: 90, price: 8800, desc: "根元から毛先まで" },
-        { id: "color_retouch", name: "リタッチカラー", durationMin: 60, price: 6600, desc: "根元の伸びた部分のみ" },
-        { id: "color_highlight", name: "ハイライト／グラデーション", durationMin: 120, price: 13200, desc: "デザインカラー" },
-      ],
-    },
-    {
-      id: "perm",
-      name: "PERM",
-      label: "パーマ",
-      items: [
-        { id: "perm_digital", name: "デジタルパーマ", durationMin: 150, price: 14300, desc: "くせづけ長持ち" },
-        { id: "perm_soft", name: "ゆるふわパーマ", durationMin: 120, price: 11000, desc: "コールドパーマ" },
-      ],
-    },
-    {
-      id: "treatment",
-      name: "TREATMENT",
-      label: "トリートメント",
-      items: [
-        { id: "treat_intensive", name: "集中トリートメント", durationMin: 40, price: 4400, desc: "" },
-        { id: "treat_repair", name: "髪質改善トリートメント", durationMin: 90, price: 9900, desc: "酸熱トリートメント" },
+        { id: "herb_first", name: "ハーブトリートメント（初回）", durationMin: 90, price: 15400, desc: "メディセル筋膜リリース＆ドライヘッドスパ付き" },
+        { id: "herb_regular", name: "ハーブトリートメント（通常）", durationMin: 80, price: 21800, desc: "オプション：ヒト幹細胞培養液セラム+2,500円／エクソソーム導入+3,000円（当日ご相談ください）" },
       ],
     },
     {
       id: "spa",
-      name: "HEAD SPA",
-      label: "ヘッドスパ",
+      name: "DRY HEAD SPA",
+      label: "ドライヘッドスパ",
       items: [
-        { id: "spa_relax", name: "リラックスヘッドスパ", durationMin: 30, price: 3300, desc: "" },
-        { id: "spa_carbonic", name: "炭酸ヘッドスパ", durationMin: 45, price: 5500, desc: "毛穴クレンジング" },
+        { id: "spa_first", name: "ドライヘッドスパ60分（初回）", durationMin: 60, price: 6500, desc: "" },
+        { id: "spa_utotori", name: "うっとりうたた寝", durationMin: 60, price: 7900, desc: "60分" },
+        { id: "spa_sukkiri", name: "すっきり寝落ち", durationMin: 75, price: 9500, desc: "75分" },
+        { id: "spa_special", name: "極上スペシャル", durationMin: 90, price: 10900, desc: "90分" },
       ],
     },
     {
-      id: "set",
-      name: "SET",
-      label: "セット・その他",
+      id: "medicel",
+      name: "MEDICEL",
+      label: "メディセル筋膜リリース",
       items: [
-        { id: "set_kimono", name: "着付け＋セット", durationMin: 60, price: 8800, desc: "成人式・結婚式などに" },
+        { id: "medicel_full", name: "全身", durationMin: 90, price: 15000, desc: "" },
+        { id: "medicel_back", name: "背面", durationMin: 60, price: 11000, desc: "" },
+        { id: "medicel_half", name: "半身（上／下）", durationMin: 40, price: 8000, desc: "" },
+        { id: "medicel_facial", name: "フェイシャルメディセル", durationMin: 30, price: 5000, desc: "" },
       ],
     },
   ],
 
-  // 店主プロフィール（一人サロンのため、予約時のスタッフ選択はありません。スタッフ紹介ページ用）
+  // 店主プロフィール（現在は予約フロー・管理画面どちらにも非表示。将来また表示する場合のために保持）
   owner: {
-    name: "田中 美咲",
-    role: "オーナー / スタイリスト",
-    bio: "10年以上にわたり、数多くのお客様の髪と向き合ってきました。一人ひとりの雰囲気やライフスタイルに寄り添った、無理のない仕上がりをご提案しています。",
-    // 空文字のままだとイラストのプレースホルダーが表示されます。実際の写真URLに差し替えてください。
+    name: "青山 愛子",
+    role: "オーナー / エステティシャン",
+    bio: "自身のニキビや肌トラブル、頭痛の経験から、ドライヘッドスパとエステだけでなく、インナーケアや生活習慣の改善まで含めたトータルケアを提供しています。",
     photoUrl: "",
   },
 };

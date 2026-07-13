@@ -118,7 +118,6 @@
     if (activeTab === "reservations") renderReservations();
     else if (activeTab === "block") renderBlock();
     else if (activeTab === "menu") renderMenu();
-    else if (activeTab === "staff") renderStaff();
     else if (activeTab === "settings") renderSettings();
   }
 
@@ -502,40 +501,10 @@
     saveConfig("menuMsg");
   }
 
-  // ---------- スタッフ紹介（一人サロンのプロフィール） ----------
-  function renderStaff() {
-    if (!config.owner) config.owner = { name: "", role: "", bio: "", photoUrl: "" };
-    const o = config.owner;
-    $adminContainer.innerHTML = `
-      <div class="admin-section-head"><h2>スタッフ紹介</h2>
-        <button class="btn btn-primary btn-small" id="staffSave">保存する</button>
-      </div>
-      <p style="color:var(--ink2);font-size:0.82rem;margin-top:-10px;">一人で運営されているため、予約時のスタッフ選択はありません。ここで設定した内容がお客様向けの「スタッフ紹介」ページに表示されます。</p>
-      ${msgHtml("staffMsg")}
-      <div class="admin-row-2">
-        <div class="field"><label>お名前</label><input type="text" id="o_name" value="${o.name || ""}" placeholder="例: 田中 美咲"></div>
-        <div class="field"><label>肩書き</label><input type="text" id="o_role" value="${o.role || ""}" placeholder="例: オーナー / スタイリスト"></div>
-      </div>
-      <div class="field"><label>紹介文</label><textarea id="o_bio" placeholder="経歴やこだわりなど">${o.bio || ""}</textarea></div>
-      <div class="field">
-        <label>写真URL（任意）</label>
-        <input type="text" id="o_photo" value="${o.photoUrl || ""}" placeholder="https://...">
-        <p style="color:var(--ink2);font-size:0.76rem;margin-top:6px;">空欄のままだと、お客様向けページにはイラストのプレースホルダーが表示されます。</p>
-      </div>
-    `;
-    document.getElementById("staffSave").addEventListener("click", () => {
-      config.owner = {
-        name: document.getElementById("o_name").value.trim(),
-        role: document.getElementById("o_role").value.trim(),
-        bio: document.getElementById("o_bio").value.trim(),
-        photoUrl: document.getElementById("o_photo").value.trim(),
-      };
-      saveConfig("staffMsg");
-    });
-  }
-
   // ---------- 店舗設定・パスワード変更 ----------
   function renderSettings() {
+    if (!config.emailMessage) config.emailMessage = { intro: "", closing: "" };
+    const em = config.emailMessage;
     $adminContainer.innerHTML = `
       <div class="admin-section-head"><h2>店舗設定</h2>
         <button class="btn btn-primary btn-small" id="settingsSave">保存する</button>
@@ -546,6 +515,16 @@
       <div class="admin-row-2">
         <div class="field"><label>電話番号</label><input type="text" id="s_tel" value="${config.tel}"></div>
         <div class="field"><label>住所</label><input type="text" id="s_address" value="${config.address}"></div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line);margin:26px 0;">
+      <h2 style="font-size:1rem;">お客様への確認メールの文面</h2>
+      <p style="color:var(--ink2);font-size:0.82rem;margin-top:-6px;">予約が入るとお客様に自動で届く確認メールの、あいさつ文と結びの文だけを自由に変更できます（予約内容や店舗情報は自動で入るので変更不要です）。</p>
+      ${msgHtml("emailMsg")}
+      <div class="field"><label>書き出しのあいさつ文</label><textarea id="e_intro" placeholder="例: ご予約ありがとうございます。以下の内容で承りました。">${em.intro || ""}</textarea></div>
+      <div class="field"><label>結びの文</label><textarea id="e_closing" placeholder="例: 当日のご来店を心よりお待ちしております。">${em.closing || ""}</textarea></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="emailSave">メール文面を保存する</button>
       </div>
 
       <hr style="border:none;border-top:1px solid var(--line);margin:26px 0;">
@@ -565,6 +544,13 @@
       config.tel = document.getElementById("s_tel").value.trim();
       config.address = document.getElementById("s_address").value.trim();
       saveConfig("settingsMsg").then(() => { $adminSalonName.textContent = `${config.salonName} 管理画面`; });
+    });
+    document.getElementById("emailSave").addEventListener("click", () => {
+      config.emailMessage = {
+        intro: document.getElementById("e_intro").value.trim(),
+        closing: document.getElementById("e_closing").value.trim(),
+      };
+      saveConfig("emailMsg");
     });
     document.getElementById("pwSave").addEventListener("click", async () => {
       const p1 = document.getElementById("newPw").value;
