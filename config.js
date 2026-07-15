@@ -14,7 +14,7 @@ const SALON_CONFIG = {
   // GAS Web AppのデプロイURL。
   // 空文字のままだとフロント単体の「デモモード」で動作します（localStorageに予約を保存、実際のカレンダーには入りません）。
   // README.md の手順でGASをデプロイしたら、取得したURLをここに設定してください。
-  API_URL: "https://script.google.com/macros/s/AKfycbx-EvknENCNiIZHOE5uL-Tr69upmSxkgVZZUFQHGIstlrQ-uuHRMFNUaWIfqHLEoyyntQ/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbz5RZNniTmr7XmMPHDder5xLnX__gAYyJoaQ8HFq1s-Nci0_QDtKXFMrUUSks-olCzxWQ/exec",
 
   // 定休日（0=日曜〜6=土曜）。Racinesは「不定休」のため固定の定休日は設定せず、
   // 休みたい日はその都度、管理画面の「時間をブロック」でその日をまとめてブロックしてください。
